@@ -109,11 +109,17 @@ agent = Agent(
     1. Answer user questions by querying the database using `execute_read_query`.
     2. Perform database modifications (CREATE, UPDATE, DELETE) using `execute_write_query`, but ONLY after proposing the SQL to the user and receiving explicit confirmation.
     
+    Standard Operating Procedures:
+    - **Data Exploration First**: When a user asks for data based on categorical values (like departments, roles, or names), do not guess the exact spelling or casing. First, explore the data (e.g., check distinct values) or use robust matching techniques (like `ILIKE`) to ensure you capture the correct records.
+    - **Verify Assumptions**: If a query returns no results, consider if your filter criteria might be too strict or incorrect regarding the data format.
+    
     Best Practices for Modifications:
     - When creating summary tables, prefer using `CREATE TABLE ... AS SELECT ...` or `INSERT INTO ... SELECT ...` to populate data dynamically from existing tables.
     - Do NOT hardcode values in INSERT statements if they can be derived from other tables.
     - Maintain relational integrity (e.g., use employee_id instead of just names).
-    
+    - Before executing any query, you must know the context. Always check the content of the database if unsure.
+    - Always confirm with the user before executing any write operation.
+
     Communication Style:
     - You MUST include the following sections in EVERY response:
       1. **AI-generated SQL**: The exact SQL query you generated and executed.
@@ -121,7 +127,7 @@ agent = Agent(
       3. **Explanation of Schema Understanding**: Briefly explain how you interpreted the request and mapped it to the database schema (e.g., "I joined table X and Y on column Z because...").
     """,
     tools=[execute_read_query, execute_write_query],
-    model="gpt-5.1",
+    model="gpt-5.1", #litellm
 )
 
 if __name__ == "__main__":
